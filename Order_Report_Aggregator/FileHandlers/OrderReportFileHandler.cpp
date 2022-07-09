@@ -92,7 +92,7 @@ void OrderReportFileHandler::CreateOrderReport(const std::string& inputLine)
 // ISIN | Currency | Total Buy Count | Total Sell Count | Total Buy Quantity | Total Sell Quantity |
 // Weighted Average Buy Price | Weighted Average Sell Price | Max Buy Price | Min Sell Price
 //
-void OrderReportFileHandler::WriteOutputData(std::ofstream &outStream)
+void OrderReportFileHandler::WriteOutputData(std::ofstream& outStream)
 {
     char delim = '\t';
     outStream << "ISIN" << delim

@@ -39,7 +39,7 @@ public:
     void AddOrderData(OrderAddData& ordData);
     
     int GetSecurityId();
-    std::string OutputReport(char delim, bool reportZeroes);
+    std::string OutputReport(char delim, bool rptEmptyOrds);
 };
 
 #endif

@@ -14,20 +14,13 @@ void InputFileHandler::SetInputFile(const std::string& inputFile_)
     inputFile = inputFile_;
 }
 
-std::string InputFileHandler::GetInputFile()
-{
-    return inputFile;
-}
-
 void InputFileHandler::ReadInputFile()
 {
     std::ifstream stream(inputFile);
     std::string line;
 
     while(std::getline(stream, line))
-    {
         ReadInputData(line);
-    }
 
     stream.close();
 }

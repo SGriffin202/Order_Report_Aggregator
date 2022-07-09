@@ -23,15 +23,15 @@ private:
     void ReadInputData(const std::string& inputLine) override;
     void FindAndUpdateOrderReport(const std::string& inputLine);
     void CreateOrderReport(const std::string& inputLine);
-    void WriteOutputData(std::ofstream &outStream) override;
+    void WriteOutputData(std::ofstream& outStream) override;
 
 public:
     OrderReportFileHandler( const std::string& inputFile_,
                             const std::string& outputFile_,
                             OrderReportCollection& ordRptColl_,
-                            bool reportZeroes_ );
+                            bool rptEmptyOrds_ );
     ~OrderReportFileHandler();
-    void SetReportEmptyOrders(bool rptZeroes);
+    void SetReportEmptyOrders(bool rptEmptyOrds);
 };
 
 #endif

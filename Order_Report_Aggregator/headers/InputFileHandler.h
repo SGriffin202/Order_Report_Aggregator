@@ -19,7 +19,6 @@ public:
     InputFileHandler(const std::string& inputFile_);
     ~InputFileHandler();
     void SetInputFile(const std::string& inputFile_);
-    std::string GetInputFile();
     void ReadInputFile();
 };
 
