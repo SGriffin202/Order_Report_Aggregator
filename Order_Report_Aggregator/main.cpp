@@ -7,9 +7,11 @@ int main()
     const std::string OUTPUT_FILE = "Output_Files/order_report.txt";
     const std::string OUTPUT_FILE_EMPTY_ORDERS = "Output_Files/order_report_including_empty_securities.txt";
 
-    bool rptEmptyOrds = false;
     OrderReportCollection ordRptColl {};
-    OrderReportFileHandler ordRptFH(INPUT_FILE, OUTPUT_FILE, ordRptColl, rptEmptyOrds);
+    OrderReportFileHandler ordRptFH( INPUT_FILE,    // Input File
+                                     OUTPUT_FILE,   // Output File
+                                     ordRptColl,    // Map of Order Reports
+                                     false );       // Only print Securities that have Orders
 
     // Read the file defined in INPUT_FILE
     //
@@ -22,8 +24,7 @@ int main()
 
     // Set the OrderReportFileHandler to generate a report on Securities that have no Orders as well
     //
-    rptEmptyOrds = true;
-    ordRptFH.SetReportEmptyOrders(rptEmptyOrds);
+    ordRptFH.SetReportEmptyOrders(true);
 
     // Set a different Ouput file as we don't want to override our existing file
     //
