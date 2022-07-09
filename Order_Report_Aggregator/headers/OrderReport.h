@@ -1,3 +1,12 @@
+/** @file OrderReport.h
+ *  @brief Contains everything needed for an Order Report on a Security
+ *
+ *  This contains the data and functions needed to produce an Order Report on a Security.
+ *
+ *  @author Sean Griffin
+ *  @bug No known bugs.
+ */
+
 #ifndef ORDERREPORT_H
 #define ORDERREPORT_H
 

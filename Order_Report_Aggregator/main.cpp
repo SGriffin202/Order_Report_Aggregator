@@ -1,3 +1,14 @@
+/** @file main.cpp
+ *  @brief Entry point to the Order Report Aggregator
+ *
+ *  Produces two TSV (Tab Separated Value) Order Aggregate Reports with data from an input file.
+ *  One report contains Securities that have Orders against them, while the other contains every
+ *  recorded Security, regardless of whether it has an Order against it or not.
+ *
+ *  @author Sean Griffin
+ *  @bug No known bugs.
+ */
+
 #include <string>
 #include "OrderReportFileHandler.h"
 
@@ -11,6 +22,7 @@ int main()
     OrderReportFileHandler ordRptFH( INPUT_FILE,    // Input File
                                      OUTPUT_FILE,   // Output File
                                      ordRptColl,    // Map of Order Reports
+                                     '\t',          // Output File Delimiter
                                      false );       // Only print Securities that have Orders
 
     // Read the file defined in INPUT_FILE
