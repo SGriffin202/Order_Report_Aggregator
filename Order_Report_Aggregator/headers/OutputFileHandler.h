@@ -25,7 +25,7 @@ protected:
 
 public:
     OutputFileHandler(const std::string& outputFile_);
-    ~OutputFileHandler();
+    virtual ~OutputFileHandler();
     void SetOutputFile(const std::string& outputFile_);
     void WriteOutputFile();
 };

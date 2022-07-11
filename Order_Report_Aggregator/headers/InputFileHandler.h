@@ -30,7 +30,7 @@ protected:
 
 public:
     InputFileHandler(const std::string& inputFile_);
-    ~InputFileHandler();
+    virtual ~InputFileHandler();
     void SetInputFile(const std::string& inputFile_);
     void ReadInputFile();
 };
