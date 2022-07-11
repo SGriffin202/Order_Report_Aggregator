@@ -21,7 +21,7 @@ int main()
     OrderReportCollection ordRptColl {};
     OrderReportFileHandler ordRptFH( INPUT_FILE,    // Input File
                                      OUTPUT_FILE,   // Output File
-                                     &ordRptColl,    // Map of Order Reports
+                                     &ordRptColl,   // Map of Order Reports
                                      '\t',          // Output File Delimiter
                                      false );       // Only print Securities that have Orders
 
