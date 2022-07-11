@@ -33,7 +33,7 @@ class OrderReportFileHandler : public InputFileHandler, public OutputFileHandler
 private:
     const std::string MSG_TYPE_SECURITY_REF = "msgType_\":8";
     const std::string MSG_TYPE_ORDER_ADD = "msgType_\":12";
-    OrderReportCollection ordRptColl;
+    OrderReportCollection* ordRptColl;
     char outputFileDelimiter;
     bool reportEmptyOrders;
 
@@ -45,7 +45,7 @@ private:
 public:
     OrderReportFileHandler( const std::string& inputFile_,
                             const std::string& outputFile_,
-                            OrderReportCollection& ordRptColl_,
+                            OrderReportCollection* ordRptColl_,
                             char delim,
                             bool rptEmptyOrds_ );
     ~OrderReportFileHandler();

@@ -27,12 +27,12 @@
  */
 OrderReportFileHandler::OrderReportFileHandler( const std::string& inputFile_,
                                                 const std::string& outputFile_,
-                                                OrderReportCollection& ordRptColl_,
+                                                OrderReportCollection* ordRptColl_,
                                                 char delim,
                                                 bool rptEmptyOrds_ )
     : InputFileHandler(inputFile_),
       OutputFileHandler(outputFile_),
-      ordRptColl(std::move(ordRptColl_)),
+      ordRptColl(ordRptColl_),
       outputFileDelimiter(delim),
       reportEmptyOrders(rptEmptyOrds_)
 {
@@ -124,8 +124,8 @@ void OrderReportFileHandler::FindAndUpdateOrderReport(const std::string& inputLi
             tmpData.price = stoll(headValSplit[1]);
     }
 
-    if ( ordRptColl.find(tmpData.securityId) != ordRptColl.end() )
-        ordRptColl[tmpData.securityId]->AddOrderData(tmpData);
+    if ( ordRptColl->find(tmpData.securityId) != ordRptColl->end() )
+        ordRptColl->at(tmpData.securityId)->AddOrderData(tmpData);
 }
 
 
@@ -155,7 +155,7 @@ void OrderReportFileHandler::CreateOrderReport(const std::string& inputLine)
             newOrdRpt->SetCurrency(headValSplit[1]);
     }
 
-    ordRptColl.insert(std::make_pair(newOrdRpt->GetSecurityId(), std::move(newOrdRpt)));
+    ordRptColl->insert(std::make_pair(newOrdRpt->GetSecurityId(), std::move(newOrdRpt)));
 }
 
 
@@ -185,6 +185,6 @@ void OrderReportFileHandler::WriteOutputData(std::ofstream& outStream)
               << "Min Sell Price"
               << "\n";
 
-    for(auto& ord : ordRptColl)
+    for(auto& ord : *ordRptColl)
         outStream << ord.second->OutputReport(outputFileDelimiter, reportEmptyOrders);
 }
