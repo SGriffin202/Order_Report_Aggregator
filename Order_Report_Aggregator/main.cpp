@@ -18,10 +18,10 @@ int main()
     const std::string OUTPUT_FILE = "Output_Files/order_report.txt";
     const std::string OUTPUT_FILE_EMPTY_ORDERS = "Output_Files/order_report_including_empty_securities.txt";
 
-    OrderReportCollection ordRptColl {};
+    std::shared_ptr<OrderReportCollection> ordRptColl = std::make_shared<OrderReportCollection>();
     OrderReportFileHandler ordRptFH( INPUT_FILE,    // Input File
                                      OUTPUT_FILE,   // Output File
-                                     &ordRptColl,   // Map of Order Reports
+                                     ordRptColl,    // Map of Order Reports
                                      '\t',          // Output File Delimiter
                                      false );       // Only print Securities that have Orders
 

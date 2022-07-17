@@ -21,13 +21,13 @@ class OutputFileHandler
 protected:
     std::string outputFile;
     
-    virtual void WriteOutputData(std::ofstream &outStream) = 0;
+    virtual void WriteOutputData(std::ofstream &outStream) const = 0;
 
 public:
     OutputFileHandler(const std::string& outputFile_);
     virtual ~OutputFileHandler();
     void SetOutputFile(const std::string& outputFile_);
-    void WriteOutputFile();
+    void WriteOutputFile() const;
 };
 
 #endif

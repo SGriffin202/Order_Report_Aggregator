@@ -45,7 +45,7 @@ void OutputFileHandler::SetOutputFile(const std::string& outputFile_)
  * 
  *  @return void
  */
-void OutputFileHandler::WriteOutputFile()
+void OutputFileHandler::WriteOutputFile() const
 {
     std::ofstream outStream(outputFile);
 

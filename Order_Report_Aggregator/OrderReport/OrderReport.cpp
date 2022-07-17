@@ -33,7 +33,7 @@ OrderReport::~OrderReport()
  * 
  *  @return Security ID
  */
-int OrderReport::GetSecurityId()
+int OrderReport::GetSecurityId() const
 {
     return securityId;
 }
@@ -44,9 +44,9 @@ int OrderReport::GetSecurityId()
  *  @param isin - ISIN
  *  @return void
  */
-void OrderReport::SetISIN(std::string& isin)
+void OrderReport::SetISIN(const std::string& isin_)
 {
-    ISIN = isin;
+    ISIN = isin_;
 }
 
 
@@ -55,9 +55,9 @@ void OrderReport::SetISIN(std::string& isin)
  *  @param cur - Currency
  *  @return void
  */
-void OrderReport::SetCurrency(std::string& cur)
+void OrderReport::SetCurrency(const std::string& cur_)
 {
-    currency = cur;
+    currency = cur_;
 }
 
 
@@ -66,9 +66,9 @@ void OrderReport::SetCurrency(std::string& cur)
  *  @param secId - Security ID
  *  @return void
  */
-void OrderReport::SetSecurityId(int secId)
+void OrderReport::SetSecurityId(const int secId_)
 {
-    securityId = secId;
+    securityId = secId_;
 }
 
 
@@ -80,7 +80,7 @@ void OrderReport::SetSecurityId(int secId)
  *  @param ordData - The relevant data from the Order Add record
  *  @return void
  */
-void OrderReport::AddOrderData(OrderAddData& ordData)
+void OrderReport::AddOrderData(const OrderAddData& ordData)
 {
     if (ordData.side == 'B')
     {
@@ -108,7 +108,7 @@ void OrderReport::AddOrderData(OrderAddData& ordData)
  * 
  *  @return Weighted Average Buy Price
  */
-size_t OrderReport::CalulateWeightedAvgBuyPrice()
+size_t OrderReport::CalcWeightedAvgBuyPrice() const
 {
     return ((buyQantity != 0) ? (totalBuySpent/buyQantity) : totalBuySpent);
 }
@@ -121,7 +121,7 @@ size_t OrderReport::CalulateWeightedAvgBuyPrice()
  * 
  *  @return Weighted Average Sell Price
  */
-size_t OrderReport::CalulateWeightedAvgSellPrice()
+size_t OrderReport::CalcWeightedAvgSellPrice() const
 {
     return ((sellQantity != 0) ? (totalSellSpent/sellQantity) : totalSellSpent);
 }
@@ -137,22 +137,35 @@ size_t OrderReport::CalulateWeightedAvgSellPrice()
  *  @param rptEmptyOrds - Whether to output the security when it has no orders
  *  @return The data needed to write an Order Report
  */
-std::string OrderReport::OutputReport(char delim, bool rptEmptyOrds)
+std::string OrderReport::OutputReport(const char delim, const bool rptEmptyOrds) const
 {
     std::string output = "";
     if(rptEmptyOrds || buyCount > 0 || sellCount > 0)
     {
-        output =  ISIN + delim
-                + currency + delim
-                + std::to_string(buyCount) + delim
-                + std::to_string(sellCount) + delim
-                + std::to_string(buyQantity) + delim
-                + std::to_string(sellQantity) + delim
-                + std::to_string(CalulateWeightedAvgBuyPrice()) + delim
-                + std::to_string(CalulateWeightedAvgSellPrice()) + delim
-                + std::to_string(maxBuyPrice) + delim
-                + std::to_string(minSellPrice)
-                + "\n";
+        // Longest strings produced are in the high 70's.
+        // Reserving the size of 100 should reduce the number of memory allocations needed.
+        //
+        output.reserve(100);
+        output += ISIN;
+        output += delim;
+        output += currency;
+        output += delim;
+        output += std::to_string(buyCount);
+        output += delim;
+        output += std::to_string(sellCount);
+        output += delim;
+        output += std::to_string(buyQantity);
+        output += delim;
+        output += std::to_string(sellQantity);
+        output += delim;
+        output += std::to_string(CalcWeightedAvgBuyPrice());
+        output += delim;
+        output += std::to_string(CalcWeightedAvgSellPrice());
+        output += delim;
+        output += std::to_string(maxBuyPrice);
+        output += delim;
+        output += std::to_string(minSellPrice);
+        output += "\n";
     }
 
     return output;

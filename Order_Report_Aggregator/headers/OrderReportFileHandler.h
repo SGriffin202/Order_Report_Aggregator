@@ -21,36 +21,35 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <vector>
 #include "InputFileHandler.h"
 #include "OutputFileHandler.h"
 #include "OrderReport.h"
 
-typedef std::unordered_map<int, std::unique_ptr<OrderReport>> OrderReportCollection;
+typedef std::unordered_map<int, OrderReport> OrderReportCollection;
 
 class OrderReportFileHandler : public InputFileHandler, public OutputFileHandler
 {
 private:
     const std::string MSG_TYPE_SECURITY_REF = "msgType_\":8";
     const std::string MSG_TYPE_ORDER_ADD = "msgType_\":12";
-    OrderReportCollection* ordRptColl;
+    std::shared_ptr<OrderReportCollection> ordRptColl;
     char outputFileDelimiter;
     bool reportEmptyOrders;
 
     void ReadInputData(const std::string& inputLine) override;
     void FindAndUpdateOrderReport(const std::string& inputLine);
     void CreateOrderReport(const std::string& inputLine);
-    void WriteOutputData(std::ofstream& outStream) override;
+    void WriteOutputData(std::ofstream& outStream) const override;
 
 public:
     OrderReportFileHandler( const std::string& inputFile_,
                             const std::string& outputFile_,
-                            OrderReportCollection* ordRptColl_,
-                            char delim,
-                            bool rptEmptyOrds_ );
+                            std::shared_ptr<OrderReportCollection> ordRptColl_,
+                            const char delim,
+                            const bool rptEmptyOrds_ );
     ~OrderReportFileHandler();
-    void SetOutputFileDelimiter(char delim);
-    void SetReportEmptyOrders(bool rptEmptyOrds);
+    void SetOutputFileDelimiter(const char delim);
+    void SetReportEmptyOrders(const bool rptEmptyOrds);
 };
 
 #endif

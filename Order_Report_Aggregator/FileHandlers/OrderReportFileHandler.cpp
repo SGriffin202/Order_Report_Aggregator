@@ -27,15 +27,17 @@
  */
 OrderReportFileHandler::OrderReportFileHandler( const std::string& inputFile_,
                                                 const std::string& outputFile_,
-                                                OrderReportCollection* ordRptColl_,
-                                                char delim,
-                                                bool rptEmptyOrds_ )
+                                                std::shared_ptr<OrderReportCollection> ordRptColl_,
+                                                const char delim,
+                                                const bool rptEmptyOrds_ )
     : InputFileHandler(inputFile_),
       OutputFileHandler(outputFile_),
       ordRptColl(ordRptColl_),
       outputFileDelimiter(delim),
       reportEmptyOrders(rptEmptyOrds_)
 {
+    if(ordRptColl == nullptr)
+        ordRptColl = std::make_shared<OrderReportCollection>();
 }
 
 OrderReportFileHandler::~OrderReportFileHandler()
@@ -50,7 +52,7 @@ OrderReportFileHandler::~OrderReportFileHandler()
  *  @param delim - Output File Delimiter
  *  @return void
  */
-void OrderReportFileHandler::SetOutputFileDelimiter(char delim)
+void OrderReportFileHandler::SetOutputFileDelimiter(const char delim)
 {
     outputFileDelimiter = delim;
 }
@@ -64,7 +66,7 @@ void OrderReportFileHandler::SetOutputFileDelimiter(char delim)
  *  @param rptEmptyOrds - Report Empty Orders
  *  @return void
  */
-void OrderReportFileHandler::SetReportEmptyOrders(bool rptEmptyOrds)
+void OrderReportFileHandler::SetReportEmptyOrders(const bool rptEmptyOrds)
 {
     reportEmptyOrders = rptEmptyOrds;
 }
@@ -109,23 +111,24 @@ void OrderReportFileHandler::ReadInputData(const std::string& inputLine)
  */
 void OrderReportFileHandler::FindAndUpdateOrderReport(const std::string& inputLine)
 {
+    size_t valPos, valLength;
     OrderAddData tmpData;
-    std::vector<std::string> headingsValues = SplitString(inputLine, ',');
-    for (std::string headingValue : headingsValues)
-    {
-        std::vector<std::string> headValSplit = SplitString(headingValue, ':');
-        if (headValSplit[0] == "\"bookEntry_\"") // The headingValue for this is: "bookEntry_":{"securityId_":VALUE
-            tmpData.securityId = stoi(headValSplit[2]);
-        else if (headValSplit[0] == "\"side_\"")
-            tmpData.side = (headValSplit[1] == "BUY") ? 'B' : 'S';
-        else if (headValSplit[0] == "\"quantity_\"")
-            tmpData.quantity = stoll(headValSplit[1]);
-        else if (headValSplit[0] == "\"price_\"")
-            tmpData.price = stoll(headValSplit[1]);
-    }
+    
+    CalcStrValPosFromStr(inputLine, "securityId_\":", valPos, valLength);
+    tmpData.securityId = stoi(inputLine.substr(valPos, valLength));
 
-    if ( ordRptColl->find(tmpData.securityId) != ordRptColl->end() )
-        ordRptColl->at(tmpData.securityId)->AddOrderData(tmpData);
+    CalcStrValPosFromStr(inputLine, "side_\":", valPos, valLength);
+    tmpData.side = (inputLine.substr(valPos, valLength) == "BUY") ? 'B' : 'S';
+
+    CalcStrValPosFromStr(inputLine, "quantity_\":", valPos, valLength);
+    tmpData.quantity = stoll(inputLine.substr(valPos, valLength));
+
+    CalcStrValPosFromStr(inputLine, "price_\":", valPos, valLength);
+    tmpData.price = stoll(inputLine.substr(valPos, valLength));
+
+    auto find = ordRptColl->find(tmpData.securityId);
+    if ( find != ordRptColl->end() )
+        find->second.AddOrderData(tmpData);
 }
 
 
@@ -139,23 +142,21 @@ void OrderReportFileHandler::FindAndUpdateOrderReport(const std::string& inputLi
  *  @param inputLine - Line from the input file that contains the Security Reference Data record (msgType_ = 8)
  *  @return void
  */
-void OrderReportFileHandler::CreateOrderReport(const std::string& inputLine) 
+void OrderReportFileHandler::CreateOrderReport(const std::string& inputLine)
 {
-    std::unique_ptr<OrderReport> newOrdRpt = std::make_unique<OrderReport>();
+    size_t valPos, valLength;
+    OrderReport newOrdRpt = OrderReport();
 
-    std::vector<std::string> headingsValues = SplitString(inputLine, ',');
-    for (std::string headingValue : headingsValues)
-    {
-        std::vector<std::string> headValSplit = SplitString(headingValue, ':');
-        if (headValSplit[0] == "\"security_\"") // headingValue = "security_":{"securityId_":VALUE
-            newOrdRpt->SetSecurityId(stoi(headValSplit[2]));
-        else if (headValSplit[0] == "\"isin_\"")
-            newOrdRpt->SetISIN(headValSplit[1]);
-        else if (headValSplit[0] == "\"currency_\"")
-            newOrdRpt->SetCurrency(headValSplit[1]);
-    }
+    CalcStrValPosFromStr(inputLine, "securityId_\":", valPos, valLength);
+    newOrdRpt.SetSecurityId(stoi(inputLine.substr(valPos, valLength)));
 
-    ordRptColl->insert(std::make_pair(newOrdRpt->GetSecurityId(), std::move(newOrdRpt)));
+    CalcStrValPosFromStr(inputLine, "isin_\":", valPos, valLength);
+    newOrdRpt.SetISIN(inputLine.substr(valPos, valLength));
+
+    CalcStrValPosFromStr(inputLine, "currency_\":", valPos, valLength);
+    newOrdRpt.SetCurrency(inputLine.substr(valPos, valLength));
+
+    ordRptColl->insert(std::make_pair(newOrdRpt.GetSecurityId(), std::move(newOrdRpt)));
 }
 
 
@@ -171,7 +172,7 @@ void OrderReportFileHandler::CreateOrderReport(const std::string& inputLine)
  *  @param outStream - The stream to the Order Report file
  *  @return void
  */
-void OrderReportFileHandler::WriteOutputData(std::ofstream& outStream)
+void OrderReportFileHandler::WriteOutputData(std::ofstream& outStream) const
 {
     outStream << "ISIN" << outputFileDelimiter
               << "Currency" << outputFileDelimiter
@@ -185,6 +186,6 @@ void OrderReportFileHandler::WriteOutputData(std::ofstream& outStream)
               << "Min Sell Price"
               << "\n";
 
-    for(auto& ord : *ordRptColl)
-        outStream << ord.second->OutputReport(outputFileDelimiter, reportEmptyOrders);
+    for(auto ord : *ordRptColl)
+        outStream << ord.second.OutputReport(outputFileDelimiter, reportEmptyOrders);
 }

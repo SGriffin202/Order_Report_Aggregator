@@ -57,20 +57,30 @@ void InputFileHandler::ReadInputFile()
 }
 
 
-/** @brief Splits the provided string by the specified delimiter
- *
- *  @param originalString - The string to split
- *  @param delimiter      - The delimiter to split the string
- *  @return The split string
+/** @brief Calculate the position of a string value, associated with a heading, from an input string
+ * 
+ *  @param searchStr - String containing the value that needs to be extracted
+ *  @param heading   - Heading in the searchStr for the value that needs to be extracted
+ *  @param valPos    - Position of the string value that needs to be extracted
+ *  @param valLength - Length of the string value that needs to be extracted
+ *  @return void
  */
-std::vector<std::string> InputFileHandler::SplitString(const std::string& originalString, char delimiter)
+void InputFileHandler::CalcStrValPosFromStr( const std::string& searchStr,
+                                             const std::string& heading,
+                                             size_t&            valPos,
+                                             size_t&            valLength ) const
 {
-    std::vector<std::string> splitStrings{};
-    std::istringstream ss(originalString);
-    std::string splitString;
+    size_t startPos = 0;
+    size_t endPos = 0;
+    valPos = 0;
+    valLength = 0;
 
-    while(std::getline(ss, splitString, delimiter))
-        splitStrings.push_back(splitString);
-
-    return splitStrings;
+    startPos = searchStr.find(heading);
+    if (startPos != std::string::npos)
+    {
+        endPos = searchStr.find(',', startPos);
+        int headingLen = heading.size();
+        valPos = startPos + headingLen;
+        valLength = endPos - valPos;
+    }
 }

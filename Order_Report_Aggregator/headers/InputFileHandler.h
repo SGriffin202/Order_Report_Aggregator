@@ -18,7 +18,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <vector>
 
 class InputFileHandler
 {
@@ -26,7 +25,10 @@ protected:
     std::string inputFile;
 
     virtual void ReadInputData(const std::string& inputLine) = 0;
-    std::vector<std::string> SplitString(const std::string& originalString, char delimiter);
+    void CalcStrValPosFromStr( const std::string& searchStr,
+                               const std::string& heading,
+                               size_t&            valPos,
+                               size_t&            valLength ) const;
 
 public:
     InputFileHandler(const std::string& inputFile_);

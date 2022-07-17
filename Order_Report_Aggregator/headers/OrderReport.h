@@ -35,20 +35,20 @@ private:
     size_t totalBuySpent;
     size_t totalSellSpent;
 
-    size_t CalulateWeightedAvgBuyPrice();
-    size_t CalulateWeightedAvgSellPrice();
+    size_t CalcWeightedAvgBuyPrice() const;
+    size_t CalcWeightedAvgSellPrice() const;
 
 public:
     OrderReport();
     ~OrderReport();
 
-    void SetISIN(std::string& isin);
-    void SetCurrency(std::string& cur);
-    void SetSecurityId(int secId);
-    void AddOrderData(OrderAddData& ordData);
+    void SetISIN(const std::string& isin_);
+    void SetCurrency(const std::string& cur_);
+    void SetSecurityId(const int secId_);
+    void AddOrderData(const OrderAddData& ordData);
     
-    int GetSecurityId();
-    std::string OutputReport(char delim, bool rptEmptyOrds);
+    int GetSecurityId() const;
+    std::string OutputReport(const char delim, const bool rptEmptyOrds) const;
 };
 
 #endif
