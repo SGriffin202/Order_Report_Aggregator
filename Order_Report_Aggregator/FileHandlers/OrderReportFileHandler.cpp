@@ -111,22 +111,28 @@ void OrderReportFileHandler::ReadInputData(const std::string& inputLine)
  */
 void OrderReportFileHandler::FindAndUpdateOrderReport(const std::string& inputLine)
 {
-    size_t valPos, valLength;
+    size_t valPos = 0;
+    size_t valLength = 0;
     OrderAddData tmpData;
     
+    // Message type 12 will always have the headings we need in the following order:
+    // securityId_\":, side_\":, quantity_\":, price_\":
+    // So rather than searching the whole string for these headings each time, we can begin our
+    // search for each subsequent heading from where the value of the previous heading ended.
+    //
     CalcStrValPosFromStr(inputLine, "securityId_\":", valPos, valLength);
-    tmpData.securityId = stoi(inputLine.substr(valPos, valLength));
+    int securityId = stoi(inputLine.substr(valPos, valLength));
 
-    CalcStrValPosFromStr(inputLine, "side_\":", valPos, valLength);
-    tmpData.side = (inputLine.substr(valPos, valLength) == "BUY") ? 'B' : 'S';
+    CalcStrValPosFromStr(inputLine, "side_\":", valPos, valLength, (valPos + valLength));
+    tmpData.side = (inputLine.substr(valPos, valLength) == "BUY") ? Side::Buy : Side::Sell;
 
-    CalcStrValPosFromStr(inputLine, "quantity_\":", valPos, valLength);
+    CalcStrValPosFromStr(inputLine, "quantity_\":", valPos, valLength, (valPos + valLength));
     tmpData.quantity = stoll(inputLine.substr(valPos, valLength));
 
-    CalcStrValPosFromStr(inputLine, "price_\":", valPos, valLength);
+    CalcStrValPosFromStr(inputLine, "price_\":", valPos, valLength, (valPos + valLength));
     tmpData.price = stoll(inputLine.substr(valPos, valLength));
 
-    auto find = ordRptColl->find(tmpData.securityId);
+    auto find = ordRptColl->find(securityId);
     if ( find != ordRptColl->end() )
         find->second.AddOrderData(tmpData);
 }
@@ -144,16 +150,22 @@ void OrderReportFileHandler::FindAndUpdateOrderReport(const std::string& inputLi
  */
 void OrderReportFileHandler::CreateOrderReport(const std::string& inputLine)
 {
-    size_t valPos, valLength;
+    size_t valPos = 0;
+    size_t valLength = 0;
     OrderReport newOrdRpt = OrderReport();
 
+    // Message type 8 will always have the headings we need in the following order:
+    // securityId_\":, isin_\":, currency_\":
+    // So rather than searching the whole string for these headings each time, we can begin our
+    // search for each subsequent heading from where the value of the previous heading ended.
+    //
     CalcStrValPosFromStr(inputLine, "securityId_\":", valPos, valLength);
     newOrdRpt.SetSecurityId(stoi(inputLine.substr(valPos, valLength)));
 
-    CalcStrValPosFromStr(inputLine, "isin_\":", valPos, valLength);
+    CalcStrValPosFromStr(inputLine, "isin_\":", valPos, valLength, (valPos + valLength));
     newOrdRpt.SetISIN(inputLine.substr(valPos, valLength));
 
-    CalcStrValPosFromStr(inputLine, "currency_\":", valPos, valLength);
+    CalcStrValPosFromStr(inputLine, "currency_\":", valPos, valLength, (valPos + valLength));
     newOrdRpt.SetCurrency(inputLine.substr(valPos, valLength));
 
     ordRptColl->insert(std::make_pair(newOrdRpt.GetSecurityId(), std::move(newOrdRpt)));
@@ -187,5 +199,5 @@ void OrderReportFileHandler::WriteOutputData(std::ofstream& outStream) const
               << "\n";
 
     for(auto ord : *ordRptColl)
-        outStream << ord.second.OutputReport(outputFileDelimiter, reportEmptyOrders);
+        ord.second.OutputReport(outStream, outputFileDelimiter, reportEmptyOrders);
 }

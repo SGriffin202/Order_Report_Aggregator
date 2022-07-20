@@ -28,7 +28,8 @@ protected:
     void CalcStrValPosFromStr( const std::string& searchStr,
                                const std::string& heading,
                                size_t&            valPos,
-                               size_t&            valLength ) const;
+                               size_t&            valLength,
+                               size_t             searchPos = 0 ) const;
 
 public:
     InputFileHandler(const std::string& inputFile_);

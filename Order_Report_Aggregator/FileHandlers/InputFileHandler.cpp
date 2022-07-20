@@ -63,24 +63,26 @@ void InputFileHandler::ReadInputFile()
  *  @param heading   - Heading in the searchStr for the value that needs to be extracted
  *  @param valPos    - Position of the string value that needs to be extracted
  *  @param valLength - Length of the string value that needs to be extracted
+ *  @param searchPos - Position to start searching the searchStr from. 0 by default.
  *  @return void
  */
 void InputFileHandler::CalcStrValPosFromStr( const std::string& searchStr,
                                              const std::string& heading,
                                              size_t&            valPos,
-                                             size_t&            valLength ) const
+                                             size_t&            valLength,
+                                             size_t             searchPos ) const
 {
-    size_t startPos = 0;
-    size_t endPos = 0;
+    size_t headingStartPos = 0;
+    size_t valEndPos = 0;
     valPos = 0;
     valLength = 0;
 
-    startPos = searchStr.find(heading);
-    if (startPos != std::string::npos)
+    headingStartPos = searchStr.find(heading, searchPos);
+    if (headingStartPos != std::string::npos)
     {
-        endPos = searchStr.find(',', startPos);
+        valEndPos = searchStr.find(',', headingStartPos);
         int headingLen = heading.size();
-        valPos = startPos + headingLen;
-        valLength = endPos - valPos;
+        valPos = headingStartPos + headingLen;
+        valLength = valEndPos - valPos;
     }
 }

@@ -10,12 +10,14 @@
 #ifndef ORDERREPORT_H
 #define ORDERREPORT_H
 
+#include <fstream>
 #include <string>
+
+enum class Side { Buy, Sell };
 
 struct OrderAddData
 {
-    int securityId;
-    char side;
+    Side side;
     size_t quantity;
     size_t price;
 };
@@ -28,8 +30,8 @@ private:
     int securityId;
     int buyCount;
     int sellCount;
-    size_t buyQantity;
-    size_t sellQantity;
+    size_t buyQuantity;
+    size_t sellQuantity;
     size_t maxBuyPrice;
     size_t minSellPrice;
     size_t totalBuySpent;
@@ -48,7 +50,7 @@ public:
     void AddOrderData(const OrderAddData& ordData);
     
     int GetSecurityId() const;
-    std::string OutputReport(const char delim, const bool rptEmptyOrds) const;
+    void OutputReport(std::ofstream& outStream, const char delim, const bool rptEmptyOrds) const;
 };
 
 #endif

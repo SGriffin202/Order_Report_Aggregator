@@ -16,8 +16,8 @@ OrderReport::OrderReport()
     securityId = 0;
     buyCount = 0;
     sellCount = 0;
-    buyQantity = 0;
-    sellQantity = 0;
+    buyQuantity = 0;
+    sellQuantity = 0;
     maxBuyPrice = 0;
     minSellPrice = 0;
     totalBuySpent = 0;
@@ -82,10 +82,10 @@ void OrderReport::SetSecurityId(const int secId_)
  */
 void OrderReport::AddOrderData(const OrderAddData& ordData)
 {
-    if (ordData.side == 'B')
+    if (ordData.side == Side::Buy) // In assembly this is doing TEST, as we're checking for 0. A Char would do the "slower" CMP.
     {
         buyCount++;
-        buyQantity += ordData.quantity;
+        buyQuantity += ordData.quantity;
         if (ordData.price > maxBuyPrice)
             maxBuyPrice = ordData.price;
         totalBuySpent += (ordData.quantity * ordData.price);
@@ -93,7 +93,7 @@ void OrderReport::AddOrderData(const OrderAddData& ordData)
     else
     {
         sellCount++;
-        sellQantity += ordData.quantity;
+        sellQuantity += ordData.quantity;
         if (ordData.price < minSellPrice)
             minSellPrice = ordData.price;
         totalSellSpent += (ordData.quantity * ordData.price);
@@ -110,7 +110,7 @@ void OrderReport::AddOrderData(const OrderAddData& ordData)
  */
 size_t OrderReport::CalcWeightedAvgBuyPrice() const
 {
-    return ((buyQantity != 0) ? (totalBuySpent/buyQantity) : totalBuySpent);
+    return ((buyQuantity != 0) ? (totalBuySpent/buyQuantity) : totalBuySpent);
 }
 
 
@@ -123,7 +123,7 @@ size_t OrderReport::CalcWeightedAvgBuyPrice() const
  */
 size_t OrderReport::CalcWeightedAvgSellPrice() const
 {
-    return ((sellQantity != 0) ? (totalSellSpent/sellQantity) : totalSellSpent);
+    return ((sellQuantity != 0) ? (totalSellSpent/sellQuantity) : totalSellSpent);
 }
 
 
@@ -133,40 +133,25 @@ size_t OrderReport::CalcWeightedAvgSellPrice() const
  *    ISIN | Currency | Total Buy Count | Total Sell Count | Total Buy Quantity | Total Sell Quantity |
  *    Weighted Average Buy Price | Weighted Average Sell Price | Max Buy Price | Min Sell Price
  *
+ *  @param outStream    - The stream to output the Order Report to
  *  @param delim        - The delimiter that will seperate each value 
  *  @param rptEmptyOrds - Whether to output the security when it has no orders
- *  @return The data needed to write an Order Report
+ *  @return void
  */
-std::string OrderReport::OutputReport(const char delim, const bool rptEmptyOrds) const
+void OrderReport::OutputReport(std::ofstream& outStream, const char delim, const bool rptEmptyOrds) const
 {
-    std::string output = "";
     if(rptEmptyOrds || buyCount > 0 || sellCount > 0)
     {
-        // Longest strings produced are in the high 70's.
-        // Reserving the size of 100 should reduce the number of memory allocations needed.
-        //
-        output.reserve(100);
-        output += ISIN;
-        output += delim;
-        output += currency;
-        output += delim;
-        output += std::to_string(buyCount);
-        output += delim;
-        output += std::to_string(sellCount);
-        output += delim;
-        output += std::to_string(buyQantity);
-        output += delim;
-        output += std::to_string(sellQantity);
-        output += delim;
-        output += std::to_string(CalcWeightedAvgBuyPrice());
-        output += delim;
-        output += std::to_string(CalcWeightedAvgSellPrice());
-        output += delim;
-        output += std::to_string(maxBuyPrice);
-        output += delim;
-        output += std::to_string(minSellPrice);
-        output += "\n";
+        outStream << ISIN << delim
+                  << currency << delim
+                  << buyCount << delim
+                  << sellCount << delim
+                  << buyQuantity << delim
+                  << sellQuantity << delim
+                  << CalcWeightedAvgBuyPrice() << delim
+                  << CalcWeightedAvgSellPrice() << delim
+                  << maxBuyPrice << delim
+                  << minSellPrice
+                  << "\n";
     }
-
-    return output;
 }
