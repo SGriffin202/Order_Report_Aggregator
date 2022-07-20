@@ -70,7 +70,7 @@ void InputFileHandler::CalcStrValPosFromStr( const std::string& searchStr,
                                              const std::string& heading,
                                              size_t&            valPos,
                                              size_t&            valLength,
-                                             size_t             searchPos ) const
+                                             const size_t       searchPos ) const
 {
     size_t headingStartPos = 0;
     size_t valEndPos = 0;
